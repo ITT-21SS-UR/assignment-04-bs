@@ -1,5 +1,7 @@
 # work was split equally between Erik Blank and Michael Schmidt
 
+import os
+
 """
 Our advanced pointing technique works through the mouse input.
 The concept speeds the mouse interaction up if the mouse doesn't
@@ -22,6 +24,7 @@ mousePosition datastructure
 e.g. mousePosition = {xPos: 1, yPos: 2}
 """
 
+# TODO: 282 hard coded mouse id for acceleration needs to be removed?
 
 class AdvancedPointing:
 
@@ -32,9 +35,9 @@ class AdvancedPointing:
         self.circleList = circleList
 
     # experiment needs to run the filter function in loop
-    # return boolean for acceleration or not
     def filter(self, mousePosition):
         # check if the position is in the circle plus margin area
+        inCircleArea = False
         for circle in self.circleList:
             # check if mouse is between xMinPos and xMaxPos of area
             # and between yMinPos and yMaxPos of area
@@ -44,6 +47,13 @@ class AdvancedPointing:
                     mousePosition.yPos <= (
                     circle.yPos + circle.diameter / 2 + self.circleMargin)
                 ):
-                return False
+                inCircleArea = True
             else:
-                return True
+                inCircleArea = False
+        
+        if (inCircleArea):
+            # set accerlatrion to normal 0
+            os.system("xinput set-prop 12 282 0")
+        else: 
+            # set accerlatrion to fast 1
+            os.system("xinput set-prop 12 282 1")

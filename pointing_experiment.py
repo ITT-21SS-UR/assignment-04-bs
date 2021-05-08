@@ -9,10 +9,7 @@ import random
 import math
 import itertools
 from PyQt5 import QtGui, QtWidgets, QtCore
-
-SIZES = [35, 60, 100, 170]
-DISTANCES = [170, 300, 450, 700]
-REPETITIONS = 4
+import pandas as pd
 
 """ setup file looks like this:
 USER: 1
@@ -24,6 +21,8 @@ DISTANCES: 170, 300, 450, 700
 # This example code contains several anti-patterns and ugly approaches.
 # Do not directly copy it but mine it for useful API calls and snippets.
 
+FIELDS = ["timestamp", "id", "trial", "distance", "target_size", "time_in_ms", "click_offset_x", "click_offset_y"]
+
 
 class FittsLawModel(object):
 
@@ -34,6 +33,7 @@ class FittsLawModel(object):
         random.shuffle(self.sizes)
         self.elapsed = 0
         self.mouse_moving = False
+        self.df = pd.DataFrame(columns=FIELDS)
         print("timestamp (ISO); user_id; trial; distance; target_size; time(ms); click_offset_x; click_offset_y")
 
     def current_target(self):
@@ -56,8 +56,23 @@ class FittsLawModel(object):
 
     def log_time(self, time, click_offset, originDistance):
         size = self.current_target()
-        print("%s; %s; %d; %d; %d; %d; %d; %d" % (self.timestamp(), self.user_id,
+        timestamp = self.timestamp()
+        print("%s; %s; %d; %d; %d; %d; %d; %d" % (timestamp, self.user_id,
               self.elapsed, originDistance, size, time, click_offset[0], click_offset[1]))
+        self.df = self.df.append({
+            "timestamp": timestamp,
+            "id": self.user_id,
+            "trial": self.elapsed,
+            "distance": originDistance,
+            "target_size": size,
+            "time_in_ms": time,
+            "click_offset_x": click_offset[0],
+            "click_offset_y": click_offset[1]
+        }, ignore_index=True)
+
+    def writeCSV(self):
+        self.df = self.df.to_csv(f'./user{self.user_id}.csv', index=False)
+
 
     def start_measurement(self):
         if not self.mouse_moving:
@@ -141,6 +156,7 @@ class FittsLawTest(QtWidgets.QWidget):
         if self.model.current_target() is not None:
             size = self.model.current_target()
         else:
+            self.model.writeCSV()
             sys.stderr.write("no targets left...")
             sys.exit(1)
         self.circles = self.__getCircles(event, size)

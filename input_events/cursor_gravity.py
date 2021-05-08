@@ -11,6 +11,7 @@ capabilities = {
 with UInput(capabilities) as device:
     while(True):
         # move the mouse cursor down
+        device.write(e.EV_REL, e.REL_X, 2)
         device.write(e.EV_REL, e.REL_Y, 2)
         # separator between events
         device.syn()

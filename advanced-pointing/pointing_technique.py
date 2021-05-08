@@ -9,23 +9,41 @@ low CD gain.
 The filter function manipulates the X and Y coordinates of the 
 mouse by reading the current mouse position and comparing it to
 the coordinates of each circle center plus the diameter plus a
-20px margin. If the mouse is in this space, it behaves normally, 
+10px margin. If the mouse is in this space, it behaves normally, 
 if the mouse is NOT in this space the movement of the mouse gets
-speed up by reading the mouse input and translating it with a 
-factor for the X and Y values to boost the movement.
+speed up manipulating the mouse acceleration to boost the movement.
 """
 
+"""
+circleList datastructure
+e.g. circleList = [{xPos: 1, yPos: 2, diameter: 10}]
 
-# pseude
-allCircles = [{xPos, yPos, width, height
-               }]
+mousePosition datastructure
+e.g. mousePosition = {xPos: 1, yPos: 2}
+"""
 
 
 class AdvancedPointing:
 
-    def __init__(self):
+    def __init__(self, circleList):
         super().__init__()
+        self.circleMargin = 10
+        self.speedUpFactor = 1.5
+        self.circleList = circleList
 
-    def filter(self, targetPosition, mousePosition):
-        print(targetPosition)
-        print(mousePosition)
+    # experiment needs to run the filter function in loop
+    # return boolean for acceleration or not
+    def filter(self, mousePosition):
+        # check if the position is in the circle plus margin area
+        for circle in self.circleList:
+            # check if mouse is between xMinPos and xMaxPos of area
+            # and between yMinPos and yMaxPos of area
+            if (mousePosition.xPos >= (circle.xPos - circle.diameter / 2 - self.circleMargin) or
+                    mousePosition.xPos <= (circle.xPos + circle.diameter / 2 + self.circleMargin) and
+                    mousePosition.yPos >= (circle.yPos - circle.diameter / 2 - self.circleMargin) or
+                    mousePosition.yPos <= (
+                    circle.yPos + circle.diameter / 2 + self.circleMargin)
+                ):
+                return False
+            else:
+                return True

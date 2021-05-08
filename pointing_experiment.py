@@ -34,7 +34,7 @@ class FittsLawModel(object):
         random.shuffle(self.sizes)
         self.elapsed = 0
         self.mouse_moving = False
-        print("timestamp (ISO); user_id; trial; distance; target_size; movement_time (ms); click_offset_x; click_offset_y")
+        print("timestamp (ISO); user_id; trial; distance; target_size; time(ms); click_offset_x; click_offset_y")
 
     def current_target(self):
         if self.elapsed >= len(self.sizes):
@@ -105,9 +105,7 @@ class FittsLawTest(QtWidgets.QWidget):
             xTarget = self.circles[self.targetNum]["xPos"]
             yTarget = self.circles[self.targetNum]["yPos"]
             tp = (xTarget, yTarget)
-            originDistance = self.__calcDistance(tp, (ev.x(), ev.y()))
-            print(tp)
-            print(self.mouse_pos)
+            originDistance = self.__calcDistance(tp, self.mouse_pos)
             hit = self.model.register_click(tp, (ev.x(), ev.y()), originDistance)
             if hit:
                 self.mouse_pos[0] = ev.x()
@@ -172,8 +170,8 @@ class FittsLawTest(QtWidgets.QWidget):
         return circles
 
     def __calcDistance(self, target_pos, click_pos):
-        return math.sqrt((target_pos[0]-click_pos[0]) * (target_pos[0]-click_pos[0]) +
-                         (target_pos[1]-click_pos[1]) * (target_pos[1]-click_pos[1]))
+        return math.sqrt((target_pos[0]-click_pos[0]) **2 +
+                         (target_pos[1]-click_pos[1]) **2)
 
 
 

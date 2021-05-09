@@ -19,7 +19,7 @@ DISTANCES: 170, 300, 450, 700
 ADVANCED_POINTING: 1 #0 off, 1 on
 """
 
-FIELDS = ["timestamp", "id", "advanced_pointing","trial", "distance", "target_size",
+FIELDS = ["timestamp", "id", "advanced_pointing", "trial", "distance", "target_size",
           "time_in_ms", "click_offset_x", "click_offset_y"]
 
 
@@ -109,7 +109,7 @@ class FittsLawTest(QtWidgets.QWidget):
     def initUI(self):
         self.text = "Please click on the target"
         self.setGeometry(0, 0, 1600, 800)
-        self.setWindowTitle('FittsLawTest')
+        self.setWindowTitle('Fitts Law Test')
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
         QtGui.QCursor.setPos(self.mapToGlobal(
             QtCore.QPoint(self.mouse_pos[0], self.mouse_pos[1])))
@@ -130,6 +130,11 @@ class FittsLawTest(QtWidgets.QWidget):
                 self.update()
 
     def mouseMoveEvent(self, ev):
+        # TODO get circles and mouse coordinates to give to advanced pointing
+        if (self.advanced_pointing == 1):
+            #advancedPointing = AdvancedPointing(self.circles)
+            print("TBD")
+
         self.model.start_measurement()
 
     def paintEvent(self, event):

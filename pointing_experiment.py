@@ -10,31 +10,31 @@ import math
 import itertools
 from PyQt5 import QtGui, QtWidgets, QtCore
 import pandas as pd
+from pointing_technique import AdvancedPointing
 
 """ setup file looks like this:
 USER: 1
 WIDTHS: 35, 60, 100, 170
 DISTANCES: 170, 300, 450, 700
+ADVANCED_POINTING: 1 #0 off, 1 on
 """
 
-
-# This example code contains several anti-patterns and ugly approaches.
-# Do not directly copy it but mine it for useful API calls and snippets.
-
-FIELDS = ["timestamp", "id", "trial", "distance", "target_size", "time_in_ms", "click_offset_x", "click_offset_y"]
+FIELDS = ["timestamp", "id", "advanced_pointing","trial", "distance", "target_size",
+          "time_in_ms", "click_offset_x", "click_offset_y"]
 
 
 class FittsLawModel(object):
 
-    def __init__(self, user_id, sizes):
+    def __init__(self, user_id, sizes, advanced_pointing):
         self.timer = QtCore.QTime()
         self.user_id = user_id
+        self.advanced_pointing = advanced_pointing
         self.sizes = sizes
         random.shuffle(self.sizes)
         self.elapsed = 0
         self.mouse_moving = False
         self.df = pd.DataFrame(columns=FIELDS)
-        print("timestamp (ISO); user_id; trial; distance; target_size; time(ms); click_offset_x; click_offset_y")
+        print("timestamp (ISO); user_id; advanced_pointing; trial; distance; target_size; time(ms); click_offset_x; click_offset_y")
 
     def current_target(self):
         if self.elapsed >= len(self.sizes):
@@ -50,7 +50,8 @@ class FittsLawModel(object):
         else:
             click_offset = (target_pos[0] - click_pos[0],
                             target_pos[1] - click_pos[1])
-            self.log_time(self.stop_measurement(), click_offset, originDistance)
+            self.log_time(self.stop_measurement(),
+                          click_offset, originDistance)
             self.elapsed += 1
             return True
 
@@ -62,6 +63,7 @@ class FittsLawModel(object):
         self.df = self.df.append({
             "timestamp": timestamp,
             "id": self.user_id,
+            "advanced_pointing": self.advanced_pointing,
             "trial": self.elapsed,
             "distance": originDistance,
             "target_size": size,
@@ -72,7 +74,6 @@ class FittsLawModel(object):
 
     def writeCSV(self):
         self.df = self.df.to_csv(f'./user{self.user_id}.csv', index=False)
-
 
     def start_measurement(self):
         if not self.mouse_moving:
@@ -105,13 +106,13 @@ class FittsLawTest(QtWidgets.QWidget):
         self.initUI()
         self.targetNum = 0
 
-
     def initUI(self):
         self.text = "Please click on the target"
-        self.setGeometry(0, 0, 1920, 800)
+        self.setGeometry(0, 0, 1600, 800)
         self.setWindowTitle('FittsLawTest')
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-        QtGui.QCursor.setPos(self.mapToGlobal(QtCore.QPoint(self.mouse_pos[0], self.mouse_pos[1])))
+        QtGui.QCursor.setPos(self.mapToGlobal(
+            QtCore.QPoint(self.mouse_pos[0], self.mouse_pos[1])))
         self.setMouseTracking(True)
         self.show()
 
@@ -121,7 +122,8 @@ class FittsLawTest(QtWidgets.QWidget):
             yTarget = self.circles[self.targetNum]["yPos"]
             tp = (xTarget, yTarget)
             originDistance = self.__calcDistance(tp, self.mouse_pos)
-            hit = self.model.register_click(tp, (ev.x(), ev.y()), originDistance)
+            hit = self.model.register_click(
+                tp, (ev.x(), ev.y()), originDistance)
             if hit:
                 self.mouse_pos[0] = ev.x()
                 self.mouse_pos[1] = ev.y()
@@ -166,9 +168,10 @@ class FittsLawTest(QtWidgets.QWidget):
                 qp.setBrush(QtGui.QColor(200, 34, 20))
                 qp.setPen(QtGui.QColor(200, 34, 20))
             else:
-                qp.setBrush(QtGui.QColor(0,0,0))
+                qp.setBrush(QtGui.QColor(0, 0, 0))
                 qp.setPen(QtGui.QColor(0, 0, 0))
-            qp.drawEllipse(item["xPos"], item["yPos"], item["diameter"], item["diameter"])
+            qp.drawEllipse(item["xPos"], item["yPos"],
+                           item["diameter"], item["diameter"])
 
     def __getCircles(self, event, size):
         circles = []
@@ -186,9 +189,8 @@ class FittsLawTest(QtWidgets.QWidget):
         return circles
 
     def __calcDistance(self, target_pos, click_pos):
-        return math.sqrt((target_pos[0]-click_pos[0]) **2 +
-                         (target_pos[1]-click_pos[1]) **2)
-
+        return math.sqrt((target_pos[0]-click_pos[0]) ** 2 +
+                         (target_pos[1]-click_pos[1]) ** 2)
 
 
 def main():
@@ -212,7 +214,11 @@ def parse_setup(filename):
         widths = [int(x) for x in width_string.split(",")]
     else:
         print("Error: wrong file format.")
-    return user_id, widths
+    if lines[3].startswith("ADVANCED_POINTING:"):
+        advancedPointing = int(lines[3].split(":")[1].strip())
+    else:
+        print("Error: wrong file format.")
+    return user_id, widths, advancedPointing
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ License: CC-0 (essentially: do what you want with it, no attribution required)
 """
 
 import sys
+import os
 import random
 import math
 import itertools
@@ -106,6 +107,7 @@ class FittsLawTest(QtWidgets.QWidget):
         self.mouse_pos = [400, 400]
         self.initUI()
         self.targetNum = 0
+        os.system("xinput set-prop 12 282 0")
 
     def initUI(self):
         self.text = "Please click on the target"

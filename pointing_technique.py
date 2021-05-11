@@ -54,7 +54,7 @@ class AdvancedPointing:
 
         if (inCircleArea):
             # set acceleration to slow down -1
-            os.system("xinput set-prop 12 " + accelId + " -1")
+            os.system("xinput set-prop 12 " + self.accelId + " -1")
         else:
             # set acceleration to normal 0
-            os.system("xinput set-prop 12 " + accelId + " 0")
+            os.system("xinput set-prop 12 " + self.accelId + " 0")

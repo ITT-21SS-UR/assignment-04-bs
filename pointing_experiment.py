@@ -25,10 +25,11 @@ FIELDS = ["timestamp", "id", "advanced_pointing", "trial", "distance", "target_s
 
 class FittsLawModel(object):
 
-    def __init__(self, user_id, sizes, advanced_pointing):
+    def __init__(self, user_id, sizes, advanced_pointing, accelId):
         self.timer = QtCore.QTime()
         self.user_id = user_id
         self.advanced_pointing = advanced_pointing
+        self.accelId = accelId
         self.sizes = sizes
         random.shuffle(self.sizes)
         self.elapsed = 0
@@ -103,11 +104,11 @@ class FittsLawTest(QtWidgets.QWidget):
         super(FittsLawTest, self).__init__()
         self.model = model
         self.circles = []
-        self.pointing = AdvancedPointing(self.circles)
+        self.pointing = AdvancedPointing(self.circles, model.accelId)
         self.mouse_pos = [400, 400]
         self.initUI()
         self.targetNum = 0
-        os.system("xinput set-prop 12 282 0")
+        os.system(f'xinput set-prop 12 {model.accelId} 0')
 
     def initUI(self):
         self.text = "Please click on the target"
@@ -160,7 +161,7 @@ class FittsLawTest(QtWidgets.QWidget):
             sys.stderr.write("no targets left...")
             sys.exit(1)
         self.circles = self.__getCircles(event, size)
-        self.pointing = AdvancedPointing(self.circles)
+        self.pointing = AdvancedPointing(self.circles, self.model.accelId)
         self.targetNum = random.randint(0, len(self.circles)-1)
         for i, item in enumerate(self.circles):
             if i == self.targetNum:
@@ -221,7 +222,11 @@ def parse_setup(filename):
         advancedPointing = int(lines[2].split(":")[1].strip())
     else:
         print("Error: wrong file format.")
-    return user_id, widths, advancedPointing
+    if lines[3].startswith("ACCEL_ID:"):
+        accelId = str(lines[3].split(":")[1].strip())
+    else:
+        print("Error: wrong file format.")
+    return user_id, widths, advancedPointing, accelId
 
 
 if __name__ == '__main__':

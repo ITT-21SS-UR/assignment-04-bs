@@ -30,30 +30,34 @@ class AdvancedPointing:
 
     def __init__(self, circleList):
         super().__init__()
-        self.circleMargin = 10
+        self.circleMargin = 50
         self.speedUpFactor = 1.5
         self.circleList = circleList
 
     # experiment needs to run the filter function in loop
     def filter(self, mousePosition):
+        print(mousePosition)
         # check if the position is in the circle plus margin area
         inCircleArea = False
         for circle in self.circleList:
             # check if mouse is between xMinPos and xMaxPos of area
             # and between yMinPos and yMaxPos of area
-            if (mousePosition.xPos >= (circle.xPos - circle.diameter / 2 - self.circleMargin) or
-                    mousePosition.xPos <= (circle.xPos + circle.diameter / 2 + self.circleMargin) and
-                    mousePosition.yPos >= (circle.yPos - circle.diameter / 2 - self.circleMargin) or
-                    mousePosition.yPos <= (
-                    circle.yPos + circle.diameter / 2 + self.circleMargin)
+            if (mousePosition["xPos"] >= (circle["xPos"] - circle["diameter"] / 2 - self.circleMargin) and
+                    mousePosition["xPos"] <= (circle["xPos"] + circle["diameter"] / 2 + self.circleMargin) and
+                    mousePosition["yPos"] >= (circle["yPos"] - circle["diameter"] / 2 - self.circleMargin) and
+                    mousePosition["yPos"] <= (
+                    circle["yPos"] + circle["diameter"] / 2 + self.circleMargin)
                 ):
                 inCircleArea = True
+                break
             else:
                 inCircleArea = False
         
         if (inCircleArea):
             # set accerlatrion to normal 0
-            os.system("xinput set-prop 12 282 0")
+            print("test1")
+            os.system("xinput set-prop 12 282 -1")
         else: 
             # set accerlatrion to fast 1
-            os.system("xinput set-prop 12 282 1")
+            print("test2")
+            os.system("xinput set-prop 12 282 0")

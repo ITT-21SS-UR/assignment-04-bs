@@ -15,8 +15,7 @@ from pointing_technique import AdvancedPointing
 """ setup file looks like this:
 USER: 1
 WIDTHS: 35, 60, 100, 170
-DISTANCES: 170, 300, 450, 700
-ADVANCED_POINTING: 1 #0 off, 1 on
+ADVANCED_POINTING: 1 ### 0 off, 1 on
 """
 
 FIELDS = ["timestamp", "id", "advanced_pointing", "trial", "distance", "target_size",
@@ -26,6 +25,7 @@ FIELDS = ["timestamp", "id", "advanced_pointing", "trial", "distance", "target_s
 class FittsLawModel(object):
 
     def __init__(self, user_id, sizes, advanced_pointing):
+        print(advanced_pointing)
         self.timer = QtCore.QTime()
         self.user_id = user_id
         self.advanced_pointing = advanced_pointing
@@ -102,6 +102,7 @@ class FittsLawTest(QtWidgets.QWidget):
         super(FittsLawTest, self).__init__()
         self.model = model
         self.circles = []
+        self.pointing = AdvancedPointing(self.circles)
         self.mouse_pos = [400, 400]
         self.initUI()
         self.targetNum = 0
@@ -130,10 +131,8 @@ class FittsLawTest(QtWidgets.QWidget):
                 self.update()
 
     def mouseMoveEvent(self, ev):
-        # TODO get circles and mouse coordinates to give to advanced pointing
-        if (self.advanced_pointing == 1):
-            #advancedPointing = AdvancedPointing(self.circles)
-            print("TBD")
+        if (self.model.advanced_pointing == 1):
+            self.pointing.filter({"xPos": ev.x(), "yPos": ev.y()})
 
         self.model.start_measurement()
 
@@ -167,6 +166,7 @@ class FittsLawTest(QtWidgets.QWidget):
             sys.stderr.write("no targets left...")
             sys.exit(1)
         self.circles = self.__getCircles(event, size)
+        self.pointing = AdvancedPointing(self.circles)
         self.targetNum = random.randint(0, len(self.circles)-1)
         for i, item in enumerate(self.circles):
             if i == self.targetNum:
@@ -219,8 +219,8 @@ def parse_setup(filename):
         widths = [int(x) for x in width_string.split(",")]
     else:
         print("Error: wrong file format.")
-    if lines[3].startswith("ADVANCED_POINTING:"):
-        advancedPointing = int(lines[3].split(":")[1].strip())
+    if lines[2].startswith("ADVANCED_POINTING:"):
+        advancedPointing = int(lines[2].split(":")[1].strip())
     else:
         print("Error: wrong file format.")
     return user_id, widths, advancedPointing

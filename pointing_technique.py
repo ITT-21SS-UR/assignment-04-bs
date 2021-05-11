@@ -1,19 +1,19 @@
-# work was split equally between Erik Blank and Michael Schmidt
+#!/usr/bin/python3
+# file was written by Michael Schmidt
 
 import os
 
 """
 Our advanced pointing technique works through the mouse input.
-The concept speeds the mouse interaction up if the mouse doesn't
-touch any target. This works through switching between high and 
-low CD gain. 
+The concept slows the mouse down if the mouse is in an area near a circle.
+This works through switching between high and low CD gain.
 
-The filter function manipulates the X and Y coordinates of the 
+The filter function manipulates the acceleration of the
 mouse by reading the current mouse position and comparing it to
 the coordinates of each circle center plus the diameter plus a
-10px margin. If the mouse is in this space, it behaves normally, 
-if the mouse is NOT in this space the movement of the mouse gets
-speed up manipulating the mouse acceleration to boost the movement.
+margin. If the mouse is in this space, it gets slowed down,
+if the mouse is NOT in this space the movement of the mouse
+behaves normally.
 """
 
 """
@@ -24,15 +24,15 @@ mousePosition datastructure
 e.g. mousePosition = {xPos: 1, yPos: 2}
 """
 
-# TODO: 282 hard coded mouse id for acceleration needs to be removed?
 
 class AdvancedPointing:
 
-    def __init__(self, circleList):
+    def __init__(self, circleList, accelId):
         super().__init__()
         self.circleMargin = 50
         self.speedUpFactor = 1.5
         self.circleList = circleList
+        self.accelId = accelId
 
     # experiment needs to run the filter function in loop
     def filter(self, mousePosition):
@@ -51,10 +51,10 @@ class AdvancedPointing:
                 break
             else:
                 inCircleArea = False
-        
+
         if (inCircleArea):
-            # set accerlatrion to normal 0
-            os.system("xinput set-prop 12 282 -1")
-        else: 
-            # set accerlatrion to fast 1
-            os.system("xinput set-prop 12 282 0")
+            # set acceleration to slow down -1
+            os.system("xinput set-prop 12 " + accelId + " -1")
+        else:
+            # set acceleration to normal 0
+            os.system("xinput set-prop 12 " + accelId + " 0")

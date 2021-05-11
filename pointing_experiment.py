@@ -1,26 +1,35 @@
 #!/usr/bin/python3
-
-""" Copyright 2014-2018 Raphael Wimmer <raphael.wimmer@ur.de> 
-License: CC-0 (essentially: do what you want with it, no attribution required)
-"""
+#
 
 import sys
 import os
 import random
 import math
-import itertools
 from PyQt5 import QtGui, QtWidgets, QtCore
 import pandas as pd
 from pointing_technique import AdvancedPointing
 
-""" setup file looks like this:
+"""
+The tests needs an test_setup.txt file.
+setup file looks like this:
 USER: 1
 WIDTHS: 35, 60, 100, 170
 ADVANCED_POINTING: 1 ### 0 off, 1 on
+
+The program will start an reactiontest for each width in WIDTHS.
+There will be nine black and one red circle displayed.
+The user should move the mouse to the red circle and then click on it
+with the left mouse button.
+If ADVANCED_POINTING is set to 1 the mouse will be slower
+if it comes near to a circle.
+Reactiontime, distance and click offset will be meassured.
 """
 
-FIELDS = ["timestamp", "id", "advanced_pointing", "trial", "distance", "target_size",
-          "time_in_ms", "click_offset_x", "click_offset_y"]
+FIELDS = ["timestamp", "id", "advanced_pointing", "trial", "distance", "target_size", "time_in_ms", "click_offset_x", "click_offset_y"]
+
+"""
+The class FittsLawModel handles the logic of the test
+"""
 
 
 class FittsLawModel(object):
@@ -35,7 +44,8 @@ class FittsLawModel(object):
         self.elapsed = 0
         self.mouse_moving = False
         self.df = pd.DataFrame(columns=FIELDS)
-        print("timestamp (ISO); user_id; advanced_pointing; trial; distance; target_size; time(ms); click_offset_x; click_offset_y")
+        print("""timestamp (ISO); user_id; advanced_pointing; trial;
+        distance; target_size; time(ms); click_offset_x; click_offset_y""")
 
     def current_target(self):
         if self.elapsed >= len(self.sizes):
@@ -96,6 +106,11 @@ class FittsLawModel(object):
 
     def debug(self, msg):
         sys.stderr.write(self.timestamp() + ": " + str(msg) + "\n")
+
+
+"""
+The class FittsLawTest displays the circles and handles mouseclicks
+"""
 
 
 class FittsLawTest(QtWidgets.QWidget):
@@ -201,6 +216,8 @@ def main():
     model = FittsLawModel(*parse_setup(sys.argv[1]))
     fitts_law_test = FittsLawTest(model)
     sys.exit(app.exec_())
+
+# this function will read the test_setup.txt file and returns the parameters for the test class
 
 
 def parse_setup(filename):

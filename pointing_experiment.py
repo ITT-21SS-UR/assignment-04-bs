@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-#
+# this script was written by Erik Blank und Michael Schmidt
 
 import sys
 import os

@@ -25,7 +25,6 @@ FIELDS = ["timestamp", "id", "advanced_pointing", "trial", "distance", "target_s
 class FittsLawModel(object):
 
     def __init__(self, user_id, sizes, advanced_pointing):
-        print(advanced_pointing)
         self.timer = QtCore.QTime()
         self.user_id = user_id
         self.advanced_pointing = advanced_pointing
@@ -73,7 +72,8 @@ class FittsLawModel(object):
         }, ignore_index=True)
 
     def writeCSV(self):
-        self.df = self.df.to_csv(f'./user{self.user_id}.csv', index=False)
+        self.df = self.df.to_csv(
+            f'./user{self.user_id}_{self.advanced_pointing}.csv', index=False)
 
     def start_measurement(self):
         if not self.mouse_moving:
@@ -139,7 +139,6 @@ class FittsLawTest(QtWidgets.QWidget):
     def paintEvent(self, event):
         qp = QtGui.QPainter()
         qp.begin(self)
-        self.drawBackground(event, qp)
         self.drawText(event, qp)
         self.drawTarget(event, qp)
         qp.end()
@@ -147,16 +146,9 @@ class FittsLawTest(QtWidgets.QWidget):
     def drawText(self, event, qp):
         qp.setPen(QtGui.QColor(0, 0, 0))
         qp.setFont(QtGui.QFont('Decorative', 32))
-        self.text = "%d / %d (%05d ms)" % (self.model.elapsed,
-                                           len(self.model.sizes), self.model.timer.elapsed())
+        self.text = "%d / %d" % (self.model.elapsed,
+                                 len(self.model.sizes))
         qp.drawText(event.rect(), QtCore.Qt.AlignBottom, self.text)
-
-    def drawBackground(self, event, qp):
-        if self.model.mouse_moving:
-            qp.setBrush(QtGui.QColor(220, 190, 190))
-        else:
-            qp.setBrush(QtGui.QColor(200, 200, 200))
-        qp.drawRect(event.rect())
 
     def drawTarget(self, event, qp):
         if self.model.current_target() is not None:
@@ -217,6 +209,10 @@ def parse_setup(filename):
     if lines[1].startswith("WIDTHS:"):
         width_string = lines[1].split(":")[1].strip()
         widths = [int(x) for x in width_string.split(",")]
+        for width in widths:
+            if width > 150:
+                print("Error: Width should be smaller than 150")
+                sys.exit(1)
     else:
         print("Error: wrong file format.")
     if lines[2].startswith("ADVANCED_POINTING:"):

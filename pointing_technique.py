@@ -36,7 +36,6 @@ class AdvancedPointing:
 
     # experiment needs to run the filter function in loop
     def filter(self, mousePosition):
-        print(mousePosition)
         # check if the position is in the circle plus margin area
         inCircleArea = False
         for circle in self.circleList:
@@ -55,9 +54,7 @@ class AdvancedPointing:
         
         if (inCircleArea):
             # set accerlatrion to normal 0
-            print("test1")
             os.system("xinput set-prop 12 282 -1")
         else: 
             # set accerlatrion to fast 1
-            print("test2")
             os.system("xinput set-prop 12 282 0")

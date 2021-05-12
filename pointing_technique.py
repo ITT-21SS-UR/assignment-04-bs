@@ -45,8 +45,7 @@ class AdvancedPointing:
                     mousePosition["xPos"] <= (circle["xPos"] + circle["diameter"] / 2 + self.circleMargin) and
                     mousePosition["yPos"] >= (circle["yPos"] - circle["diameter"] / 2 - self.circleMargin) and
                     mousePosition["yPos"] <= (
-                    circle["yPos"] + circle["diameter"] / 2 + self.circleMargin)
-                ):
+                    circle["yPos"] + circle["diameter"] / 2 + self.circleMargin)):
                 inCircleArea = True
                 break
             else:

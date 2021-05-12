@@ -25,7 +25,8 @@ if it comes near to a circle.
 Reactiontime, distance and click offset will be meassured.
 """
 
-FIELDS = ["timestamp", "id", "advanced_pointing", "trial", "distance", "target_size", "time_in_ms", "click_offset_x", "click_offset_y"]
+FIELDS = ["timestamp", "id", "advanced_pointing", "trial", "distance",
+          "target_size", "time_in_ms", "click_offset_x", "click_offset_y"]
 
 """
 The class FittsLawModel handles the logic of the test
